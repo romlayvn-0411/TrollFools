@@ -144,13 +144,14 @@ struct OptionView: View {
             result in
             switch result {
             case let .success(theSuccess):
-                if !isWarningHidden && theSuccess.contains(where: { $0.pathExtension.lowercased() == "deb" }) {
-                    temporaryResult = result
-                    isWarningPresented = true
-                } else {
-                    importerResult = result
-                    isImporterSelected = true
+                if #available(iOS 15, *) {
+                    if !isWarningHidden && theSuccess.contains(where: { $0.pathExtension.lowercased() == "deb" }) {
+                        temporaryResult = result
+                        isWarningPresented = true
+                        return
+                    }
                 }
+                fallthrough
             case .failure:
                 importerResult = result
                 isImporterSelected = true
@@ -191,7 +192,7 @@ struct OptionView: View {
         var urls = [URL]()
         urls += InjectorV3.main.injectedAssetURLsInBundle(app.url)
         let enabledNames = urls.map { $0.lastPathComponent }
-        urls += InjectorV3.main.persistedAssetURLs(id: app.id)
+        urls += InjectorV3.main.persistedAssetURLs(bid: app.bid)
             .filter { !enabledNames.contains($0.lastPathComponent) }
         numberOfPlugIns = urls.count
     }
